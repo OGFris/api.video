@@ -2,7 +2,7 @@
  Unofficial Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/OGFris).
 
 ## Documentations
- The documentations is could be found here [GoStats Docs](https://godoc.org/github.com/OGFris/api.video).
+ The documentations is could be found [here](https://godoc.org/github.com/OGFris/api.video).
 
 ## License
  GoStats is under the [MIT License](https://github.com/OGFris/api.video/blob/master/LICENSE).
