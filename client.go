@@ -25,15 +25,14 @@ package apiVideo
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"net/http"
-	"net/url"
+	"github.com/valyala/fasthttp"
+	"os"
 	"time"
 )
 
 const (
-	// BaseUrl is the main url to the api.
-	BaseUrl = "https://ws.api.video"
+	// BaseUri is the main url to the api.
+	BaseUri = "https://ws.api.video"
 
 	// ApiKeyPath is the path for the authentication.
 	ApiKeyPath = "/auth/api-key"
@@ -50,8 +49,8 @@ type Client struct {
 	// Password stands for the api token you received in the registration email.
 	Password string
 
-	// BaseUrl should always be the constant BaseUrl.
-	BaseUrl string
+	// BaseUri should always be the constant BaseUrl.
+	BaseUri string
 
 	// TokenType is provided inside the response to the authentication.
 	TokenType string
@@ -77,37 +76,37 @@ type AuthResponse struct {
 
 // Authenticate has to be executed in order to use the api, it authenticates the client to get the token.
 func (c *Client) Authenticate() error {
-	req, err := http.NewRequest("POST", c.BaseUrl+ApiKeyPath, nil)
-	if err != nil {
-		return err
-	}
-
+	req := fasthttp.AcquireRequest()
+	req.Header.SetMethod("POST")
 	req.Header.Add("Content-type", "application/json")
+	req.SetRequestURI(c.BaseUri + ApiKeyPath)
 
-	req.PostForm = url.Values{"apiKey": {c.Password}}
-
-	client := http.Client{}
-	response, err := client.Do(req)
+	bytes, err := json.Marshal(map[string]string{"apiKey": c.Password})
 	if err != nil {
 		return err
 	}
 
-	if response.StatusCode == http.StatusBadRequest {
+	req.SetBody(bytes)
+
+	client := fasthttp.Client{}
+	response := fasthttp.AcquireResponse()
+
+	err = client.Do(req, response)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode() == fasthttp.StatusBadRequest {
 		return errors.New("bad request, the user credentials were incorrect")
 	}
 
-	if response.StatusCode != http.StatusOK {
+	if response.StatusCode() != fasthttp.StatusOK {
 		return errors.New("status code does not seem to be correct")
-	}
-
-	bytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
 	}
 
 	var data AuthResponse
 
-	err = json.Unmarshal(bytes, &data)
+	err = json.Unmarshal(response.Body(), &data)
 	if err != nil {
 		return err
 	}
@@ -122,37 +121,37 @@ func (c *Client) Authenticate() error {
 
 // Refresh is used to update the access token using the refresh token on the api
 func (c *Client) Refresh() error {
-	req, err := http.NewRequest("POST", c.BaseUrl+RefreshPath, nil)
-	if err != nil {
-		return err
-	}
-
+	req := fasthttp.AcquireRequest()
+	req.Header.SetMethod("POST")
 	req.Header.Add("Content-type", "application/json")
+	req.SetRequestURI(c.BaseUri + RefreshPath)
 
-	req.PostForm = url.Values{"refreshToken": {c.RefreshToken}}
-
-	client := http.Client{}
-	response, err := client.Do(req)
+	bytes, err := json.Marshal(map[string]string{"refreshToken": c.RefreshToken})
 	if err != nil {
 		return err
 	}
 
-	if response.StatusCode == http.StatusBadRequest {
+	req.SetBody(bytes)
+
+	client := fasthttp.Client{}
+	response := fasthttp.AcquireResponse()
+
+	err = client.Do(req, response)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode() == fasthttp.StatusBadRequest {
 		return errors.New("bad request, the user credentials were incorrect")
 	}
 
-	if response.StatusCode != http.StatusOK {
+	if response.StatusCode() != fasthttp.StatusOK {
 		return errors.New("status code does not seem to be correct")
-	}
-
-	bytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
 	}
 
 	var data AuthResponse
 
-	err = json.Unmarshal(bytes, &data)
+	err = json.Unmarshal(response.Body(), &data)
 	if err != nil {
 		return err
 	}
@@ -163,4 +162,13 @@ func (c *Client) Refresh() error {
 	c.RefreshToken = data.RefreshToken
 
 	return nil
+}
+
+// LoadClientFromEnv creates a Client instance with input from env.
+func LoadClientFromEnv() *Client {
+	return &Client{
+		Username: os.Getenv("APIVIDEO_USERNAME"),
+		Password: os.Getenv("APIVIDEO_PASSWORD"),
+		BaseUri:  BaseUri,
+	}
 }

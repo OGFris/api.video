@@ -26,9 +26,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/url"
+	"github.com/valyala/fasthttp"
 )
 
 const (
@@ -76,63 +74,51 @@ type UploadVideo struct {
 
 // CreateVideo creates a new video using the client.
 func (c *Client) CreateVideo(u *UploadVideo, fromSource bool) (*Video, error) {
-	req, err := http.NewRequest("POST", c.BaseUrl+VideosPath, nil)
-	if err != nil {
-		return &Video{}, err
-	}
-
+	req := fasthttp.AcquireRequest()
+	req.Header.SetMethod("POST")
 	req.Header.Add("Content-type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprint(c.TokenType, c.AccessToken))
-	if values, err := u.ToUrlValues(); err == nil {
-		if !fromSource {
-			values.Del("source")
-		}
-		req.PostForm = values
+	req.SetRequestURI(c.BaseUri + VideosPath)
+
+	if data, err := u.ToJson(); err == nil {
+		req.SetBodyString(data)
 	} else {
 		return &Video{}, err
 	}
 
-	client := http.Client{}
-	response, err := client.Do(req)
+	client := fasthttp.Client{}
+	response := fasthttp.AcquireResponse()
+
+	err := client.Do(req, response)
 	if err != nil {
 		return &Video{}, err
 	}
 
-	switch response.StatusCode {
+	switch response.StatusCode() {
 
-	case http.StatusCreated:
+	case fasthttp.StatusCreated:
 		// Video created
-		bytes, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return &Video{}, err
-		}
-
 		var data Video
 
-		err = json.Unmarshal(bytes, &data)
+		err = json.Unmarshal(response.Body(), &data)
 		if err != nil {
 			return &Video{}, err
 		}
 
 		break
 
-	case http.StatusAccepted:
+	case fasthttp.StatusAccepted:
 		// Source video accepted and is being downloaded
-		bytes, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return &Video{}, err
-		}
-
 		var data Video
 
-		err = json.Unmarshal(bytes, &data)
+		err = json.Unmarshal(response.Body(), &data)
 		if err != nil {
 			return &Video{}, err
 		}
 
 		break
 
-	case http.StatusBadRequest:
+	case fasthttp.StatusBadRequest:
 		// Error
 		return &Video{}, errors.New("bad request")
 
@@ -144,15 +130,12 @@ func (c *Client) CreateVideo(u *UploadVideo, fromSource bool) (*Video, error) {
 	return &Video{}, errors.New("line of code should never be reached")
 }
 
-// ToUrlValues converts the UploadVideo type to url.Values type.
-func (u *UploadVideo) ToUrlValues() (url.Values, error) {
-	values := url.Values{}
+// ToJson converts the UploadVideo type to a json encoded string.
+func (u *UploadVideo) ToJson() (string, error) {
 	bytes, err := json.Marshal(&u)
 	if err != nil {
-		return values, err
+		return "", err
 	}
 
-	values, err = url.ParseQuery(string(bytes))
-
-	return values, nil
+	return string(bytes), nil
 }
