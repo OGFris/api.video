@@ -72,8 +72,9 @@ func (c *Client) Authenticate() error {
 
 	req.Header.Add("Content-type", "application/json")
 	req.PostForm.Add("apiKey", c.Password)
-
-	response, err := http.Client{}.Do(req)
+	
+	c := http.Client{}
+	response, err := c.Do(req)
 	if err != nil {
 		return err
 	}
