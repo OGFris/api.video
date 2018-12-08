@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package api_video
+package apiVideo
 
 import (
 	"encoding/json"
@@ -72,9 +72,9 @@ func (c *Client) Authenticate() error {
 
 	req.Header.Add("Content-type", "application/json")
 	req.PostForm.Add("apiKey", c.Password)
-	
-	c := http.Client{}
-	response, err := c.Do(req)
+
+	client := http.Client{}
+	response, err := client.Do(req)
 	if err != nil {
 		return err
 	}
