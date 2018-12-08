@@ -154,5 +154,5 @@ func (u *UploadVideo) ToUrlValues() (url.Values, error) {
 
 	values, err = url.ParseQuery(string(bytes))
 
-	return values, nil
+	return values, err
 }
