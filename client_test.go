@@ -23,15 +23,58 @@
 package apiVideo
 
 import (
+	"os"
 	"testing"
 )
 
+// TestLoadClientFromEnv tests if the function LoadClientFromEnv works.
+func TestLoadClientFromEnv(t *testing.T) {
+	oldUsername := os.Getenv("APIVIDEO_USERNAME")
+	oldPassword := os.Getenv("APIVIDEO_PASSWORD")
+
+	err := os.Setenv("APIVIDEO_USERNAME", "fakeUsername")
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.Setenv("APIVIDEO_PASSWORD", "fakePassword")
+	if err != nil {
+		panic(err)
+	}
+
+	c := LoadClientFromEnv()
+
+	err = os.Setenv("APIVIDEO_USERNAME", oldUsername)
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.Setenv("APIVIDEO_PASSWORD", oldPassword)
+	if err != nil {
+		panic(err)
+	}
+	if c.Username != "fakeUsername" || c.Password != "fakePassword" {
+		t.Fatal("Username and/or Password does not match the provided data.")
+		t.FailNow()
+	}
+}
+
 // TestClient_Authenticate tests if the function Authenticate works.
 func TestClient_Authenticate(t *testing.T) {
-	c := &Client{
+	// Correct input, should work.
+	c := LoadClientFromEnv()
+	if c.Password != "" && c.Username != "" {
+		err := c.Authenticate()
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Fake input, should not work.
+	c = &Client{
 		Username: "123@fakemail.com",
 		Password: "12345678",
-		BaseUrl:  BaseUrl,
+		BaseUri:  BaseUri,
 	}
 
 	err := c.Authenticate()
@@ -42,10 +85,25 @@ func TestClient_Authenticate(t *testing.T) {
 
 // TestClient_Refresh tests if the function Refresh works.
 func TestClient_Refresh(t *testing.T) {
-	c := &Client{
+	// Correct input, should work.
+	c := LoadClientFromEnv()
+	if c.Password != "" && c.Username != "" {
+		err := c.Authenticate()
+		if err != nil {
+			panic(err)
+		}
+
+		err = c.Refresh()
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Fake input, should not work.
+	c = &Client{
 		Username: "123@fakemail.com",
 		Password: "12345678",
-		BaseUrl:  BaseUrl,
+		BaseUri:  BaseUri,
 	}
 
 	err := c.Refresh()

@@ -1,4 +1,4 @@
-# api.video Go-sdk [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
+# Api.video golang sdk [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
  Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/FrisXYZ).
 
 ## Documentations
@@ -10,13 +10,16 @@
  ```go
 package main
 
-import "github.com/OGFris/api.video"
+import (
+	"fmt"
+	"github.com/OGFris/api.video"
+)
 
 func main() {
 	c := &apiVideo.Client{
  	    Username: "youremail@example.com",
  	    Password: "12345678",
-        BaseUrl:  apiVideo.BaseUrl,
+        BaseUri:  apiVideo.BaseUri,
     }
  
     // Authenticate to get the tokens.
@@ -25,7 +28,12 @@ func main() {
  	    panic(err)
     }
     
+    video, err := c.CreateVideo(&apiVideo.UploadVideo{Title: "test", Source: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4"}, true)
+    if err != nil {
+    	panic(err)
+    }
     
+    fmt.Println(video)
 }
  ```
 
