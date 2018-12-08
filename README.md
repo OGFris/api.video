@@ -1,8 +1,33 @@
-# api.video [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
- Unofficial Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/FrisXYZ).
+# api.video Go-sdk [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
+ Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/FrisXYZ).
 
 ## Documentations
  [GoDocs](https://godoc.org/github.com/OGFris/api.video).
+ 
+## Example
+ *NOTICE:* **Make you sure to edit the login credentials with yours when using the example code** *!*
+ 
+ ```go
+package main
+
+import "github.com/OGFris/api.video"
+
+func main() {
+	c := &apiVideo.Client{
+ 	    Username: "youremail@example.com",
+ 	    Password: "12345678",
+        BaseUrl:  apiVideo.BaseUrl,
+    }
+ 
+    // Authenticate to get the tokens.
+    err := c.Authenticate()
+    if err != nil {
+ 	    panic(err)
+    }
+    
+    
+}
+ ```
 
 ## License
  GoStats is under the [MIT License](https://github.com/OGFris/api.video/blob/master/LICENSE).
