@@ -27,6 +27,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -36,6 +37,9 @@ const (
 
 	// ApiKeyPath is the path for the authentication.
 	ApiKeyPath = "/auth/api-key"
+
+	// RefreshPath is the path for the token refresh.
+	RefreshPath = "/auth/refresh"
 )
 
 // Client is the instance that is used to communicate with the api.
@@ -63,6 +67,14 @@ type Client struct {
 	RefreshToken string
 }
 
+// AuthResponse is the model of the authentication and refresh responses.
+type AuthResponse struct {
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 // Authenticate has to be executed in order to use the api, it authenticates the client to get the token.
 func (c *Client) Authenticate() error {
 	req, err := http.NewRequest("POST", c.BaseUrl+ApiKeyPath, nil)
@@ -71,7 +83,8 @@ func (c *Client) Authenticate() error {
 	}
 
 	req.Header.Add("Content-type", "application/json")
-	req.PostForm.Add("apiKey", c.Password)
+
+	req.PostForm = url.Values{"apiKey": {c.Password}}
 
 	client := http.Client{}
 	response, err := client.Do(req)
@@ -92,11 +105,49 @@ func (c *Client) Authenticate() error {
 		return err
 	}
 
-	type AuthResponse struct {
-		TokenType    string `json:"token_type"`
-		ExpiresIn    int    `json:"expires_in"`
-		AccessToken  string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
+	var data AuthResponse
+
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return err
+	}
+
+	c.TokenType = data.TokenType
+	c.ExpiresIn = time.Now().Add(time.Duration(data.ExpiresIn * 1000))
+	c.AccessToken = data.AccessToken
+	c.RefreshToken = data.RefreshToken
+
+	return nil
+}
+
+// Refresh is used to update the access token using the refresh token on the api
+func (c *Client) Refresh() error {
+	req, err := http.NewRequest("POST", c.BaseUrl+RefreshPath, nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Content-type", "application/json")
+
+	req.PostForm = url.Values{"refreshToken": {c.RefreshToken}}
+
+	client := http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode == http.StatusBadRequest {
+		return errors.New("bad request, the user credentials were incorrect")
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return errors.New("status code does not seem to be correct")
+	}
+
+	bytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
 	}
 
 	var data AuthResponse

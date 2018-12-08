@@ -21,35 +21,3 @@
 // SOFTWARE.
 
 package apiVideo
-
-import (
-	"testing"
-)
-
-// TestClient_Authenticate tests if the function Authenticate works.
-func TestClient_Authenticate(t *testing.T) {
-	c := &Client{
-		Username: "123@fakemail.com",
-		Password: "12345678",
-		BaseUrl:  BaseUrl,
-	}
-
-	err := c.Authenticate()
-	if err.Error() != "bad request, the user credentials were incorrect" {
-		panic(err)
-	}
-}
-
-// TestClient_Refresh tests if the function Refresh works.
-func TestClient_Refresh(t *testing.T) {
-	c := &Client{
-		Username: "123@fakemail.com",
-		Password: "12345678",
-		BaseUrl:  BaseUrl,
-	}
-
-	err := c.Refresh()
-	if err.Error() != "bad request, the user credentials were incorrect" {
-		panic(err)
-	}
-}
