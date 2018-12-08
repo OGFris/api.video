@@ -1,4 +1,4 @@
-# api.video [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![cover.run](https://cover.run/go/github.com/OGFris/api.video.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=github.com%2FOGFris%2Fapi.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
+# api.video [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
  Unofficial Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/FrisXYZ).
 
 ## Documentations
