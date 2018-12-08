@@ -1,8 +1,8 @@
-# api.video
- Unofficial Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/OGFris).
+# api.video [![Build Status](https://travis-ci.com/OGFris/api.video.svg?branch=master)](https://travis-ci.com/OGFris/api.video) [![cover.run](https://cover.run/go/github.com/OGFris/api.video.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=github.com%2FOGFris%2Fapi.video) [![Go Report Card](https://goreportcard.com/badge/github.com/OGFris/api.video)](https://goreportcard.com/report/github.com/OGFris/api.video)
+ Unofficial Golang sdk for the api of [api.video](https://api.video), maintained by [Fris](https://twitter.com/FrisXYZ).
 
 ## Documentations
- The documentations is could be found [here](https://godoc.org/github.com/OGFris/api.video).
+ [GoDocs](https://godoc.org/github.com/OGFris/api.video).
 
 ## License
  GoStats is under the [MIT License](https://github.com/OGFris/api.video/blob/master/LICENSE).
