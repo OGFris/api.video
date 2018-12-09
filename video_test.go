@@ -23,6 +23,7 @@
 package apiVideo
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -47,6 +48,7 @@ func TestUploadVideo_ToJson(t *testing.T) {
 	}
 }
 
+// TestClient_CreateVideo tests if the function CreateVideo works.
 func TestClient_CreateVideo(t *testing.T) {
 	// Correct input, should work.
 	c := LoadClientFromEnv()
@@ -56,12 +58,21 @@ func TestClient_CreateVideo(t *testing.T) {
 			panic(err)
 		}
 
-		video, err := c.CreateVideo(&UploadVideo{Title: "test", Source: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4"}, true)
+		video, err := c.CreateVideo(&UploadVideo{
+			Title:  "test",
+			Source: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4",
+			Tags:   []string{"test", "api"},
+			Metadata: []struct {
+				Key   string `json:"key"`
+				Value string `json:""`
+			}{
+				{Key: "Author", Value: "Fris"},
+			},
+		}, true)
 		if err != nil {
 			panic(err)
 		}
-		if video.Title != "test" {
-
-		}
+		fmt.Println("Success.")
+		fmt.Println(video)
 	}
 }

@@ -77,7 +77,7 @@ func (c *Client) CreateVideo(u *UploadVideo, fromSource bool) (*Video, error) {
 	req := fasthttp.AcquireRequest()
 	req.Header.SetMethod("POST")
 	req.Header.Add("Content-type", "application/json")
-	req.Header.Add("Authorization", fmt.Sprint(c.TokenType, c.AccessToken))
+	req.Header.Add("Authorization", c.TokenType+" "+c.AccessToken)
 	req.SetRequestURI(c.BaseUri + VideosPath)
 
 	if data, err := u.ToJson(); err == nil {
@@ -120,9 +120,12 @@ func (c *Client) CreateVideo(u *UploadVideo, fromSource bool) (*Video, error) {
 
 	case fasthttp.StatusBadRequest:
 		// Error
+		fmt.Println(string(response.Body()))
 		return &Video{}, errors.New("bad request")
 
 	default:
+		fmt.Println(response.StatusCode())
+		fmt.Println(string(response.Body()))
 		return &Video{}, errors.New("unexpected response status, report it to api.video")
 	}
 
